@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { createNewProduct, updateProduct } from '../firebase/queriesDataBase';
 import { useForm } from '../hooks/useForm';
@@ -38,10 +38,22 @@ const Input = styled.div`
    }
    textarea{
     width: 90%;
-    min-height: 200px;
+    min-height: 100px;
     margin: auto;
     border-radius: 6px;
    }   
+   span{
+    font-size: 12px;
+    font-weight: 400;
+    margin: 0 10px;
+    color: #f15959;
+   }
+`;
+
+const Image = styled.img`
+   margin: -10px 10px;
+   width: 100px;
+   height: 100px;
 `;
 
 interface Props {
@@ -49,24 +61,52 @@ interface Props {
     closeModal: () => void;
     setChangeInProds: () => void;
 }
+interface ImageFile {
+    path: string;
+    file: any;
+    fakeUrl: any;
+}
 
-export const Modal = ({ closeModal, dataProduct,setChangeInProds }: Props) => {
+export const Modal = ({ closeModal, dataProduct, setChangeInProds }: Props) => {
 
     const { setAllValues, values, handleInputChange } = useForm({ name: '', id: '', img: '', ingredients: '', price: '' });
-    const { name, img, ingredients, price, id } = values;
+    const [imageState, setImageState] = useState<ImageFile | any>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { name, ingredients, price, id } = values;
 
     useEffect(() => {
-        setAllValues(dataProduct);
+        if (dataProduct.id !== '') {
+            setAllValues(dataProduct);
+            setImageState({
+                path: '',
+                file: null,
+                fakeUrl: dataProduct.img
+            });
+        }
     }, []);
+
+    const handleImageChange = ({ target }: any) => {
+        setImageState({
+            path: target.files[0].name,
+            file: target.files[0],
+            fakeUrl: URL.createObjectURL(target.files[0])
+        });
+    }
+
 
     const handleSaveChanges = async () => {
 
+        if (name.trim() === '' || ingredients.trim() === '', price.toString().trim() === '') {
+            return alert('Comlpleta los campos obligatorios');
+        }
+        setIsLoading(true);
         if (id === '') {
             const resp = await createNewProduct({
                 name,
                 ingredients,
-                price
-            });
+                price: parseInt(price.toString())
+            }, imageState);
+
             if (resp.ok) {
                 alert('Creado Correctamente');
             } else {
@@ -76,8 +116,8 @@ export const Modal = ({ closeModal, dataProduct,setChangeInProds }: Props) => {
             const resp = await updateProduct({
                 name,
                 ingredients,
-                price
-            }, id);
+                price: parseInt(price.toString())
+            }, id, imageState);
 
             if (resp.ok) {
                 alert('Modificado Correctamente');
@@ -85,13 +125,14 @@ export const Modal = ({ closeModal, dataProduct,setChangeInProds }: Props) => {
                 alert(`Error: ${resp.msg}`);
             }
         }
+        setIsLoading(false);
         closeModal();
         setChangeInProds();
     }
     return (
         <Container>
             <ModalDiv>
-                <h2>{(id==='') ? 'Nuevo Producto': `Prod: ${id}`}</h2>
+                <h3>{(id === '') ? 'Nuevo Producto' : `ID: ${id}`}</h3>
                 <Input>
                     <label>Nombre:</label>
                     <input type={'text'}
@@ -117,13 +158,20 @@ export const Modal = ({ closeModal, dataProduct,setChangeInProds }: Props) => {
                     />
                 </Input>
                 <Input>
-                    <label>Imagen:</label>
-                    <input type={'file'} />
+                    <label>Imagen:<span>{` (350px X 350px en PNG)`}</span></label>
+                    <input type={'file'} onChange={handleImageChange} />
                 </Input>
-                <ContainerButtons>
-                    <Button onClick={handleSaveChanges} color='green' text='Guardar' />
-                    <Button onClick={closeModal} color='red' text='Cancelar' />
-                </ContainerButtons>
+                {
+                    (imageState) &&
+                    <Image src={imageState.fakeUrl} />
+                }
+                {(isLoading) ? <h3>Espera unos segundos..</h3>
+                    :
+                    <ContainerButtons>
+                        <Button onClick={handleSaveChanges} color='#255A26' text='Guardar' />
+                        <Button onClick={closeModal} color='#BF3737' text='Cancelar' />
+                    </ContainerButtons>
+                }
             </ModalDiv>
         </Container>
     )

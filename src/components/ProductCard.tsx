@@ -72,8 +72,8 @@ export const ProductCard = ({setModalData, setChangeInProds,prod}:Props) => {
                 <ImagenMuestra src={img}/>
             </ItemAtribute>
             <ContainerButtons>
-                <Button onClick={setData} color='blue' text='modificar' />
-                <Button onClick={handleDeleteProd} color='red' text='eliminar' />
+                <Button onClick={setData} color='#315BBE' text='modificar' />
+                <Button onClick={handleDeleteProd} color='#BF3737' text='eliminar' />
             </ContainerButtons>
         </Container>
     )

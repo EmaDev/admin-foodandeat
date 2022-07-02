@@ -48,7 +48,7 @@ export const Products = ({ openModal, setDataModal, anyChanges, setChangeInProds
     return (
         <Container>
             <h2>Productos</h2>
-            <Button onClick={openModal} color='green' text='Crear producto' />
+            <Button onClick={openModal} color='#315BBE' text='Crear nuevo producto' />
             <Line />
 
             {

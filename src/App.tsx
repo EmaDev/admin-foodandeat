@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Contact } from "./components/Contact";
+import { Extras } from "./components/Extras";
 import { Modal } from "./components/Modal";
 import { Product, Products } from "./components/Products";
 
@@ -29,7 +31,9 @@ function App() {
         />
       }
       <div className="marginGlobal">
-        <h1>Administrador</h1>
+        <h1 style={{textAlign: 'center', padding:'10px',borderRadius:'4px', border:'1px solid #318934'}}>Administrador</h1>
+        <Contact/>
+        <Extras/>
         <Products
           setDataModal={openModalWithData}
           openModal={() => setModalIsActive(true)}
